@@ -17,6 +17,10 @@ const create = async (req,res)=>{
     
     const {fname,lname,email,password} = body
     
+    const checkEmail = await authorModel.findOne({email:email})
+
+    if(checkEmail) return res.status(409).send("This email is already exist, plz enter different email")
+
     if(!validate.test(fname)) return res.status(400).send("plz provide valid First Name")
 
     if(!validate.test(lname)) return res.send("plz provide valid Last Name")
