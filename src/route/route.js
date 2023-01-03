@@ -10,7 +10,12 @@ router.post("/blogs", blogsController.createBlog)
 router.get("/blogs", blogsController.getBlogs)
 router.put("/blogs/:blogId", blogsController.updateBlog)
 router.delete("/blogs/:blogId", blogsController.deleteBlog)
+router.delete("/blogs", blogsController.deleteByQuery)
 
+
+router.all("/*", (req,res)=>{
+    res.status(400).send("plz send correct url")
+})
 
 
 

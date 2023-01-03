@@ -6,8 +6,8 @@ const ObjectId = mongoose.Schema.Types.ObjectId
 const blogSchema = new mongoose.Schema({
     title : {
         type:String,
-        required:true
-        
+        required:true,
+        trim:true
     },
     body:{
         type:String,
@@ -26,12 +26,12 @@ const blogSchema = new mongoose.Schema({
        
     },
 
-    catagory : {
+    category : {
         type:String,
         required:true
     },
 
-    subcatagory:{
+    subcategory:{
         type:Array,
         tags:[]
     },
@@ -48,8 +48,8 @@ const blogSchema = new mongoose.Schema({
     },
 
     publishedAt:{
-        type:Date,
-        default : Date.now()
+        type:Date
+        
         
     },
 

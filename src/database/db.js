@@ -1,10 +1,11 @@
 const { default: mongoose } = require("mongoose");
+mongoose.set('strictQuery', true)
 
 const dbConnection = async (url)=>{
     try {
-        // const url = "mongodb+srv://Ashish:94SCYHhauNyG7Fbl@project-1-bloggingproje.h7kuu09.mongodb.net/test"
+        
         await mongoose.connect(url,{useNewUrlParser:true})
-        console.log("batabase connected");
+        console.log("database connected");
     } catch (error) {
         console.log("error while connecting database", error.message);
     }
