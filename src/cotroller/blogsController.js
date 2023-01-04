@@ -63,13 +63,15 @@ const getBlogs = async (req,res)=>{
 
         if(keys.length==0) return res.status(400).send("Enter Query or enter valid query")
 
-        const getData = await blogsModel.find(filter)
+        const getData = await blogsModel.find(filter).populate("authorId")
 
         if(getData.length===0) return res.status(404).send("Document not found")
 
         const getBlogs =  getData.filter((x)=>{
             return ((x.isDeleted === false) && (x.isPublished === true))
         })
+      
+        if(getBlogs.length===0) return res.status(404).send("user not found")
       
         res.status(200).send({result:getBlogs})
 
@@ -168,13 +170,15 @@ const deleteByQuery = async(req,res)=>{
     const {title,body,tags,authorId,category,subcategory} = filter
             
     
-    if(!validateObjectId.test(authorId)) return res.status(400).send("plz Enter valid authorId")
-        
-    let checkAuthorId = await authorModel.findById(authorId)
+    
+    
+    // let checkAuthorId = await authorModel.findById(authorId)
 
-    if(!checkAuthorId) return res.status(400).send("authorId is invalid, plz Enter valid authorId")
+    
    
     if(!validate.test(title)) return res.status(400).send("plz Enter valid title")
+    // if(!validateObjectId.test(authorId)) return res.status(400).send("plz Enter valid authorId")
+    // if(!checkAuthorId) return res.status(400).send("authorId is invalid, plz Enter valid authorId")
     if(!validate.test(body)) return res.status(400).send("plz Enter valid body")
     if(!validate.test(tags)) return res.status(400).send("plz Enter valid tags")
     if(!validate.test(category)) return res.status(400).send("plz Enter valid category")
