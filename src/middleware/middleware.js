@@ -10,74 +10,70 @@ const tokenVerify = function (req, res, next) {
     if (!token)
       return res.send({ status: false, msg: "token must be present" });
 
-     
-
-    let decodedToken = jwt.verify(token, "Bloging-site-is-very-secure");
-
-    if (!decodedToken)
-      return res.send({ status: false, msg: "token is invalid" });
-
-
+  jwt.verify(token, "Bloging-site-is-very-secure", function(err,decodedToken){
+    if (err) return res.status(401).send({msg:"Invalid Token"})
+    req.decodedToken=decodedToken
+    
     next();
+  })
+
   } catch (error) {
     res.status(500).send(error.message);
   }
 };
 
 const userVerify = async (req,res,next) => {
-    let blogId = req.params.blogId
+  let blogId = req.params.blogId
 
-    let token = req.headers["x-api-key"];
+  let token = req.headers["x-api-key"];
+ 
+  let validateObjectId = /^[a-f\d]{24}$/i
+
+  if(!blogId) return res.status(400).send({msg:"BlogId Id is Not present"})
+ 
+  if(!validateObjectId.test(blogId)) return res.status(400).send("invalid id")
+  
+  let decodedToken = jwt.verify(token, "Bloging-site-is-very-secure");
+
+  let id  = decodedToken.Id
+
+  let findAuthor = await blogsModel.findOne({_id:blogId})
    
-    let validateObjectId = /^[a-f\d]{24}$/i
+  if(!findAuthor) return res.send("invalid blog id")
 
-    if(!blogId) return res.status(400).send({msg:"BlogId Id is Not present"})
-   
-    if(!validateObjectId.test(blogId)) return res.status(400).send("invalid id")
-    
-    let decodedToken = jwt.verify(token, "Bloging-site-is-very-secure");
+  let authorId = findAuthor.authorId
 
-    let id  = decodedToken.Id
+  if(id!=authorId) return res.status(404).send("user not found")
 
-    let findAuthor = await blogsModel.findOne({_id:blogId})
-     
-    if(!findAuthor) return res.send("invalid blog id")
-
-    let authorId = findAuthor.authorId
-
-    if(id!=authorId) return res.status(404).send("user not found")
-
-    next()
-
-}
-const userQueryVerify = async (req,res,next) => {
-    
-    let body = req.query
-
-    let token = req.headers["x-api-key"];
-   
-    let validateObjectId = /^[a-f\d]{24}$/i
-
-    if(!blogId) return res.status(400).send({msg:"BlogId Id is Not present"})
-   
-    if(!validateObjectId.test(blogId)) return res.status(400).send("invalid id")
-    
-    let decodedToken = jwt.verify(token, "Bloging-site-is-very-secure");
-
-    let id  = decodedToken.Id
-
-    
-    let findAuthor = await blogsModel.findOne(body)
-    
-    if(!findAuthor) return res.send("invalid blog id")
-
-    let authorId = findAuthor.authorId
-
-    if(id!=authorId) return res.status(404).send("user not found")
-
-    next()
+  next()
 
 }
 
 
-module.exports = { tokenVerify,userVerify,userQueryVerify };
+// const userQueryVerify = async (req,res,next) => {
+    
+//   let body = req.query
+
+//   let token = req.headers["x-api-key"];
+ 
+//   let validateObjectId = /^[a-f\d]{24}$/i
+  
+//   let decodedToken = jwt.verify(token, "Bloging-site-is-very-secure");
+
+//   let id  = decodedToken.Id
+//   let findAuthor = await blogsModel.find(body)
+//   console.log(findAuthor)
+  
+//   if(!findAuthor) return res.send("invalid blog id")
+
+//   let authorId = findAuthor.authorId
+
+//   if(id!=authorId) return res.status(404).send("user not found")
+
+//   next()
+
+// }
+
+
+
+ module.exports = { tokenVerify,userVerify};

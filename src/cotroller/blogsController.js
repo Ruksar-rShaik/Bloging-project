@@ -1,6 +1,5 @@
 // const validateNameLastName = require("../validators/validators.js");
 
-
 const { log } = require("console");
 const  moment  = require("moment");
 const authorModel = require("../models/authorModel");
@@ -156,46 +155,33 @@ const deleteBlog = async (req,res)=>{
    }
 }
 
+
+
 const deleteByQuery = async(req,res)=>{
    try {
     let filter = req.query
-
+    let authId=req.decodedToken.Id
+    console.log(authId)
     let keys = Object.keys(filter)
 
-    let validateObjectId = /^[a-f\d]{24}$/i
-    let validate = /^([a-z A-Z ]){2,30}$/
 
     if(keys.length==0) return res.status(400).send("Enter Query")
 
-    const {title,body,tags,authorId,category,subcategory} = filter
-            
-    
-    
-    
-    // let checkAuthorId = await authorModel.findById(authorId)
-
-    
-   
-    if(!validate.test(title)) return res.status(400).send("plz Enter valid title")
-    // if(!validateObjectId.test(authorId)) return res.status(400).send("plz Enter valid authorId")
-    // if(!checkAuthorId) return res.status(400).send("authorId is invalid, plz Enter valid authorId")
-    if(!validate.test(body)) return res.status(400).send("plz Enter valid body")
-    if(!validate.test(tags)) return res.status(400).send("plz Enter valid tags")
-    if(!validate.test(category)) return res.status(400).send("plz Enter valid category")
-    if(!validate.test(subcategory)) return res.status(400).send("plz Enter valid subcategory")
-
-
+  
     const checkBlockStatus = await blogsModel.find(filter)
+    console.log(checkBlockStatus)
  
     if(checkBlockStatus.length===0) return res.status(404).send({msg:"Document not found"})
+    let xyz=checkBlockStatus.authorId
 
-    const checkDelete = checkBlockStatus.filter((x)=>{
-        return x.isDeleted==false
-    })
- 
-    if(checkDelete.length===0) return res.status(404).send({msg:"Document  not found"})
+    const checkauthId=checkBlockStatus.filter(x=>x.authorId==authId)
+    if(checkauthId.length==0) return res.status(403).send("you are unauthorized")
+
+    const checkDelete=checkBlockStatus.filter((x)=>(x.isDeleted==false))
+    if(checkDelete.length===0) return res.status(404).send({msg:"not found"})
     
-    const delteItem = await blogsModel.updateMany(filter,{$set:{isDeleted:true}},{new:true})
+    
+    const delteItem = await blogsModel.updateMany({filter,authorId:xyz,isPublished:true,isDeleted:false},{$set:{isDeleted:true}},{new:true})
    
     if(!delteItem) return res.status(404).send({msg:"Document not found"})
 
